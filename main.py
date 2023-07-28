@@ -2,7 +2,8 @@ import logging
 import logger
 import asyncio
 import os
-import random 
+import sys
+import random
 import threading
 import queue
 from telethon import TelegramClient
@@ -32,41 +33,41 @@ logger.active_file_handler()
 
 log = logger.get_logger(__name__)
 
-#first change
+
 store = DataStore()
 APP = Quart(__name__)
 BOT_TOKEN = os.environ['Token']
 BOT_NAME = os.environ["BotName"]
 API_HASH = os.environ['ApiHash']
-API_ID = os.environ['ApiId']
+API_ID: str = os.environ['ApiId']
 CHAT = os.environ["Chat"]
 LOOP = asyncio.new_event_loop()
 LOOP.name = "MainLoop"
 asyncio.set_event_loop(LOOP)
-BOT = None 
+BOT = None
 store.log_queue = MyQueue(maxsize=20)
 store.tglog = asyncio.Queue()
 store.count = 0
 logger.active_queue_handler( store.log_queue)
-tgh = logger.active_telegram_handler( store.tglog) 
+tgh = logger.active_telegram_handler( store.tglog)
 
 
 async def process_log(bot, chat, queue_log):
   chat_type = ""
   limiter = Sleeper()
-  limiter.add_limit("gen", 30, 1) 
+  limiter.add_limit("gen", 30, 1)
   await limiter.use_limit("gen")
   entity = await bot.get_entity(chat)
   if not entity.is_private:
     chat_type = "{}#{}".format(entity.title, entity.id)
     limiter.add_limit(chat_type, 20, 60)
   while True:
-    try: 
+    try:
       log = await queue_log.get()
       if chat_type:
         await limiter.use_limits( "gen", chat_type)
       else:
-        await limiter.use_limit( "gen") 
+        await limiter.use_limit( "gen")
       await bot.send_message(chat, log)
     finally:
       queue_log.task_done()
@@ -76,13 +77,14 @@ async def main():
   async def run_bot():
     global BOT
     try:
-      log.info("bot is starting..") 
+      log.info("bot is starting..")
+      # noinspection PyTypeChecker
       BOT = TelegramClient( BOT_NAME, API_ID, API_HASH, loop=LOOP)
       await BOT.start(bot_token=BOT_TOKEN)
       me = await BOT.get_me()
       log.info("bot status: "+str(bool(me)))
     except Exception as e:
-      log.error(f"bot termited: {e}\n",exc_info=True)
+      log.error(f"bot terminated: {e}\n",exc_info=True)
   #await run_bot()
   log.info("end")
 
@@ -91,7 +93,7 @@ async def main():
 async def startup():
   await main()
   log.info("server started")
-  
+
 @APP.after_serving
 async def shutdown():
   log.info("server shutdown")
@@ -116,20 +118,23 @@ async def sse_log_stream():
       logs = list(await store.log_queue.get_changed())
       data = "".join(logs)
       data = data.replace("\n","<br>")
-      log.debug(data,extra={"qh":False})
-      event = SSE(data) 
+      log.debug(data, extra={"qh":False})
+      event = SSE(data)
       yield event.encode()
       await asyncio.sleep(1)
-  return Response(log_stream(),content_type="text/event-stream")
+  return Response(log_stream(), content_type="text/event-stream")
 
 async def start_server():
   hypercorn_quart_cfg = Config()
-  hypercorn_quart_cfg.bind = ["0.0.0.0:8080"]
+  if sys.platform.startswith('win'):
+    log.info(f"Используется адрес по умолчанию для {sys.platform}")
+  else:
+    hypercorn_quart_cfg.bind = ["0.0.0.0:8080"]
   hypercorn_quart_cfg.startup_timeout = 200
   await serve(APP, hypercorn_quart_cfg)
-  
+
 if __name__ == '__main__':
   try:
-   LOOP.run_until_complete(start_server())
+    LOOP.run_until_complete(start_server())
   except:
     log.exception("#"*(44-16)+"\nEnd program cause error:")
