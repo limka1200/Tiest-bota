@@ -1630,3 +1630,17 @@ server started
 start
 end
 server started
+start
+end
+server started
+start
+end
+server started
+start
+end
+server started
+win32
+Используется адрес по умолчанию для win32
+start
+end
+server started
