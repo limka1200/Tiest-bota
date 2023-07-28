@@ -1,0 +1,29 @@
+body {
+  background-color: #282c34;
+  font-family: 'Ubuntu Mono', monospace;
+}
+
+h1 {
+   color: #00A550;
+}
+
+h6 {
+  color: #3b506b
+}
+
+#messages p.log_info {
+  color: #66A7E9;
+}
+
+#messages p.log_warn {
+  color: #E48400;
+}
+
+#messages p.log_error {
+  color: #ff6667;
+}
+
+p {
+   font-size: 14px;
+   color: #00A550;
+}

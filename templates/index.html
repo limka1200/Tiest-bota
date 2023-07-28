@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <title>Console MyApp</title>
+      <meta charset="UTF-8">
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v={{ cache_styles }}">
+    </head>
+    <body>
+      <!-- <a href="/grafic">открыть График</a> -->
+      <h1>Console</h1>
+        <h6>output 10 messages</h6>
+      <div id="messages">
+        <script src="{{ url_for('static', filename='js/console.js') }}?v={{ cache_console }}"></script>
+      </div>
+    </body>
+</html>
