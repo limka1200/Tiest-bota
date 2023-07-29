@@ -61,9 +61,7 @@ class MyFormatter(ColoredFormatter):
             info["cal"]["modl"]=key
         #print(key, value)
     for key,value in info["cur"]["modl"].items():
-      curmod,curfun=key,value
-    record.curretMod=curmod
-    record.curretFunc=curfun
+      record.curretMod, record.curretFunc = key, value
     record.callerMod=info["cal"]["modl"]
     if record.curretMod == record.callerMod or record.callerMod == "":
       record.importMod = record.curretMod
