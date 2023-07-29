@@ -35,7 +35,15 @@ class MyFormatter(ColoredFormatter):
     info["cur"]={"mark":True, "modl":""}
     info["cal"]={"mark":True, "modl":""}
     for key,value in info["modl"].items():
-      if key != "logging" and key != "unknown" and key != __name__:
+      def check_module_in_same_package(module_name):
+        try:
+          if module_name != "logging" and module_name != "unknown":
+            imported_module = __import__(module_name)
+            return __package__ != getattr(imported_module, '__package__')
+        except (ModuleNotFoundError, AttributeError):
+          return True
+        return False
+      if check_module_in_same_package(key):
         if info["cur"]["mark"]:
           info["cur"]["mark"] = False
           info["cur"]["modl"] = {key:value[0]}
@@ -46,7 +54,7 @@ class MyFormatter(ColoredFormatter):
           if info["cal"]["mark"]:
             info["cal"]["mark"]=False
             info["cal"]["modl"]=key
-        #print(key,value)
+        #print(key, value)
     for key,value in info["cur"]["modl"].items():
       curmod,curfun=key,value
     record.curretMod=curmod

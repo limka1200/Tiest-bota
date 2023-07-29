@@ -49,7 +49,9 @@ store.log_queue = MyQueue(maxsize=20)
 store.tglog = asyncio.Queue()
 store.count = 0
 logger.active_queue_handler(store.log_queue)
-tgh = logger.active_telegram_handler(store.tglog)
+
+
+# tgh = logger.active_telegram_handler(store.tglog)
 
 
 async def process_log(bot, chat, queue_log):
