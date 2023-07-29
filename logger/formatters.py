@@ -2,6 +2,7 @@ import pytz
 import inspect
 import threading
 import textwrap
+import sys
 from datetime import datetime 
 from colorlog import ColoredFormatter
 
@@ -39,8 +40,11 @@ class MyFormatter(ColoredFormatter):
       def check_module_in_same_package(module_name):
         try:
           if module_name != "logging" and module_name != "unknown":
-            imported_module = __import__(module_name)
-            return __package__ != getattr(imported_module, '__package__')
+            if module_name in sys.modules:
+              module = sys.modules[module_name]
+              return __package__ != getattr(module, '__package__')
+            else:
+              return True
         except (ModuleNotFoundError, AttributeError):
           return True
         return False
