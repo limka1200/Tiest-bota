@@ -15,8 +15,19 @@ import hashlib
 from limits import Sleeper
 
 
-# Функция, которая генерирует уникальный идентификатор на основе содержимого файла
 def generate_cache_buster(filename):
+	"""
+    Генерирует хеш-сумму MD5 для содержимого указанного файла.
+
+    :param filename: Имя файла, для которого нужно сгенерировать хеш-сумму.
+    :type filename: str
+
+    :return: Хеш-сумма MD5 в виде строки, представляющей собой 32-символьный шестнадцатеричный код.
+    :rtype: str
+
+    :raises FileNotFoundError: Если указанный файл не найден.
+    :raises IOError: Если возникли проблемы при чтении файла.
+  """
 	with open(filename, "rb") as f:
 		content = f.read()
 		return hashlib.md5(content).hexdigest()
