@@ -20,7 +20,6 @@ def generate_cache_buster(filename):
     Генерирует хеш-сумму MD5 для содержимого указанного файла.
 
     :param filename: Имя файла, для которого нужно сгенерировать хеш-сумму.
-    :type filename: str
 
     :return: Хеш-сумма MD5 в виде строки, представляющей собой 32-символьный шестнадцатеричный код.
     :rtype: str
@@ -55,25 +54,25 @@ CHAT = os.environ["Chat"]
 LOOP = asyncio.new_event_loop()
 LOOP.name = "MainLoop"
 asyncio.set_event_loop(LOOP)
-BOT = None
+BOT: TelegramClient = None
 store.log_queue = MyQueue(maxsize=20)
-store.tglog = asyncio.Queue()
 store.count = 0
 logger.active_queue_handler(store.log_queue)
+store.tglog = asyncio.Queue()
+tgh = logger.active_telegram_handler2(store.tglog)
 
 
-# tgh = logger.active_telegram_handler(store.tglog)
-
-
-async def process_log(bot, chat, queue_log):
+async def process_log(bot: TelegramClient, chat: str, queue_log: asyncio.Queue):
 	chat_type = ""
 	limiter = Sleeper()
 	limiter.add_limit("gen", 30, 1)
 	await limiter.use_limit("gen")
 	entity = await bot.get_entity(chat)
-	if not entity.is_private:
+	from telethon.tl import types
+	if not isinstance(entity, types.User):
 		chat_type = "{}#{}".format(entity.title, entity.id)
 		limiter.add_limit(chat_type, 20, 60)
+	task = None
 	while True:
 		try:
 			log = await queue_log.get()
@@ -81,7 +80,12 @@ async def process_log(bot, chat, queue_log):
 				await limiter.use_limits("gen", chat_type)
 			else:
 				await limiter.use_limit("gen")
-			await bot.send_message(chat, log)
+
+			if task is not None and not task.done():
+				await task
+			cor = bot.send_message(chat, log)
+			task = asyncio.create_task(cor)
+			#await cor
 		finally:
 			queue_log.task_done()
 
@@ -101,13 +105,24 @@ async def main():
 		except Exception as e:
 			log.error(f"bot terminated: {e}\n", exc_info=True)
 
-	# await run_bot()
+	#await run_bot()
+	#asyncio.create_task(process_log(BOT, CHAT, store.tglog))
 	log.info("end")
 
 
 @APP.before_serving
 async def startup():
 	await main()
+	def test():
+		import time
+		start_time = time.monotonic()
+		async def test_flood(count = 100):
+			for i in range(0, count):
+				log.info(f"[{time.monotonic()-start_time}] message #{i}")
+		asyncio.gather(test_flood(50), test_flood(50), test_flood(50), test_flood(50))
+		end_time = time.monotonic() - start_time
+		#log.info(f"{100*4} / {}")
+	#test()
 	log.info("server started")
 
 

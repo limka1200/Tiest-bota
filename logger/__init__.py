@@ -60,12 +60,25 @@ def active_telegram_handler(chat, level=logging.INFO):
   return tgh
 
 def active_telegram_handler2(queue, level=logging.INFO):
+  """
+  Добавляет активный обработчик сообщений в Telegram для журнала событий.
+
+    :param queue: Очередь, в которую будут отправляться сообщения для Telegram.
+    :type queue: queue.Queue
+
+    :param level: Уровень логирования, по умолчанию установлен на logging.INFO.
+                  Минимальный уровень, при котором сообщения будут обрабатываться обработчиком.
+    :type level: int, optional
+
+    :return: Обработчик очереди, который был добавлен в журнал событий.
+    :rtype: QueueHandler
+  """
   log = logging.getLogger(name_log)
   tgh = QueueHandler(queue)
   tgh.setLevel(level)
-  tgh.addFilter( FilterModule("logger.handlers"))
+  tgh.addFilter(FilterModule("logger.handlers"))
   tgh.addFilter(ExtraFilter("tgh"))
-  formatter = MyFormatter( "```[{levelname}] {importMod}:``` **{message}**", style='{', no_color=True)
+  formatter = MyFormatter("```[{levelname}] {importMod}:``` **{message}**", style='{', no_color=True)
   tgh.setFormatter(formatter)
   log.addHandler(tgh)
   return tgh 

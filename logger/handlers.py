@@ -1,3 +1,4 @@
+import asyncio
 import threading
 import textwrap
 import queue
@@ -60,9 +61,16 @@ class TelegramBotHandlerV2(Handler):
 
 class QueueHandler(Handler):
   def __init__(self, queue):
+    if isinstance(queue, asyncio.Queue):
+      self.type_queue = "async"
+    else:
+      self.type_queue = "sync"
     self.queue = queue
     super().__init__()
   def emit(self, record):
-    item=self.format(record)
+    item = self.format(record)
     #log.debug(f"putting {item=}")
-    self.queue.put(item)
+    if self.type_queue == "sync":
+      self.queue.put(item)
+    else:
+      self.queue.put_nowait(item)

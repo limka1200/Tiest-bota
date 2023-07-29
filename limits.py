@@ -10,10 +10,14 @@ class Sleeper:
   """
   Класс для реализации ограничения скорости в приложениях asyncio.
 
-  Атрибуты:
-    limits (dict): Словарь с информацией об ограничениях скорости для каждого именованного ограничения.
-    cor_lock (asyncio.Lock): Блокировка для синхронизации доступа к проверке.
-    cor_event (asyncio.Event): Событие для сигнализации о завершении корутины.
+  :ivar limits: Словарь с информацией об ограничениях скорости для каждого именованного ограничения.
+  :type limits: dict
+
+  :ivar cor_lock: Блокировка для синхронизации доступа к проверке.
+  :type cor_lock: asyncio.Lock
+
+  :ivar cor_event: Событие для сигнализации о завершении корутины.
+  :type cor_event: asyncio.Event
   """
 
   def __init__(self):
@@ -21,22 +25,24 @@ class Sleeper:
     self.cor_lock = asyncio.Lock()
     self.cor_event = asyncio.Event()
 
-  def add_limit(
-    self, 
-    name: str, 
-    rate_limit: int, 
-    period: float
-  ):
+  def add_limit(self,
+                name: str,
+                rate_limit: int,
+                period: float):
     """
     Добавляет новое ограничение скорости в словарь `limits`.
 
-    Аргументы:
-      name (str): Имя ограничения скорости.
-      rate_limit (int): Максимальное количество маркеров для ограничения скорости.
-      period (float): Временной период для ограничения скорости.
+    :param name: Имя ограничения скорости.
+    :type name: str
 
-    Возвращает:
-      None
+    :param rate_limit: Максимальное количество маркеров для ограничения скорости.
+    :type rate_limit: int
+
+    :param period: Временной период для ограничения скорости.
+    :type period: float
+
+    :return: None
+    :rtype: None
     """
     lock = asyncio.Lock()
     event = asyncio.Event()
@@ -136,11 +142,11 @@ class Sleeper:
     """
     Использует одно ограничение скорости.
 
-    Аргументы:
-      name (str): Имя ограничения скорости.
+    :param name: Имя ограничения скорости.
+    :type name: str
 
-    Возвращает:
-      None
+    :return: None
+    :rtype: None
     """
     await self.lock(name)
     delay = self.calculate_delay(name)
