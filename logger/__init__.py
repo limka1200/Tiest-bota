@@ -42,7 +42,8 @@ def active_queue_handler(queue):
   error_filter.filter = lambda record: record.levelno >= logging.ERROR
   qh_err.addFilter(error_filter)
   qh_err.setLevel(logging.ERROR)
-  formatter = MyFormatter('<p class="log_error">[{asctime}] [{levelname}] {importMod}: <b>{message}</b></p>",datefmt="%d.%m.%Y %H:%M:%S',style='{',noColor=True)
+  formatter = MyFormatter('<p class="log_error">[{asctime}] [{levelname}] {importMod}: <b>{message}</b></p>',
+                          datefmt="%d.%m.%Y %H:%M:%S", style='{', no_color=True)
   qh_err.setFormatter(formatter)
   log.addHandler(qh_err)
 
