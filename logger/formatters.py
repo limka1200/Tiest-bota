@@ -7,9 +7,10 @@ from colorlog import ColoredFormatter
 
 
 class MyFormatter(ColoredFormatter):
-  def __init__(self, fmt=None, datefmt=None, style='%', noColor=False, log_colors=None, tz=pytz.timezone("Europe/Moscow")):
+  def __init__(self, fmt=None, datefmt=None, style='%', no_color=False, log_colors=None,
+               tz=pytz.timezone("Europe/Moscow")):
     super().__init__(fmt=fmt, datefmt=datefmt, style=style, log_colors=log_colors)
-    self.noColor = noColor
+    self.noColor = no_color
     self.tz = tz
     
   def converter(self, timestamp):

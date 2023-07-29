@@ -19,7 +19,9 @@ def active_queue_handler(queue):
   info_filter = levelFilter( logging.INFO)
   qh_info.addFilter(info_filter)
   qh_info.setLevel(logging.INFO)
-  formatter = MyFormatter('<p class="log_info">[{asctime}] [{levelname}] {importMod}: <b>{message}</b></p>',datefmt="%d.%m.%Y %H:%M:%S",style='{',noColor=True)
+  formatter = MyFormatter('<p class="log_info">[{asctime}] [{levelname}] {importMod}: <b>{message}</b></p>',
+                          datefmt="%d.%m.%Y %H:%M:%S", style='{',
+                          no_color=True)
   qh_info.setFormatter(formatter)
   log.addHandler(qh_info)
   
@@ -28,7 +30,9 @@ def active_queue_handler(queue):
   warn_filter = levelFilter( logging.WARNING)
   qh_warn.addFilter(warn_filter)
   qh_warn.setLevel(logging.WARNING)
-  formatter = MyFormatter('<p class="log_warn">[{asctime}] [{levelname}] {importMod}: <b>{message}</b></p>',datefmt="%d.%m.%Y %H:%M:%S",style='{',noColor=True)
+  formatter = MyFormatter('<p class="log_warn">[{asctime}] [{levelname}] {importMod}: <b>{message}</b></p>',
+                          datefmt="%d.%m.%Y %H:%M:%S", style='{',
+                          no_color=True)
   qh_warn.setFormatter(formatter)
   log.addHandler(qh_warn)
   
@@ -49,7 +53,7 @@ def active_telegram_handler(chat, level=logging.INFO):
   tgh.setLevel(level)
   tgh.addFilter( FilterModule("logger.handlers"))
   tgh.addFilter(ExtraFilter("tgh"))
-  formatter = MyFormatter( "```[{levelname}] {importMod}:``` **{message}**",style='{',noColor=True)
+  formatter = MyFormatter( "```[{levelname}] {importMod}:``` **{message}**", style='{', no_color=True)
   tgh.setFormatter(formatter)
   log.addHandler(tgh)
   return tgh
@@ -60,7 +64,7 @@ def active_telegram_handler2(queue, level=logging.INFO):
   tgh.setLevel(level)
   tgh.addFilter( FilterModule("logger.handlers"))
   tgh.addFilter(ExtraFilter("tgh"))
-  formatter = MyFormatter( "```[{levelname}] {importMod}:``` **{message}**",style='{',noColor=True)
+  formatter = MyFormatter( "```[{levelname}] {importMod}:``` **{message}**", style='{', no_color=True)
   tgh.setFormatter(formatter)
   log.addHandler(tgh)
   return tgh 
