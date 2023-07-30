@@ -138,7 +138,7 @@ class Sleeper:
     await lock.acquire()
     log.debug("'{}' >> заблокировано".format(name))
 
-  async def use_limit(self, name):
+  async def use_limit(self, name: str = "gen"):
     """
     Использует одно ограничение скорости.
 
