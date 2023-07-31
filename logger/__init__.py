@@ -1,5 +1,5 @@
 import logging
-from .handlers import QueueHandler, TelegramBotHandlerV2
+from .handlers import QueueHandler, TelegramBotHandlerV2, TelegramBotHandlerV3
 from .filters import MyFilter, ExtraFilter, levelFilter, FilterModule
 from .formatters import MyFormatter
 
@@ -81,7 +81,23 @@ def active_telegram_handler2(queue, level=logging.INFO):
   formatter = MyFormatter("```[{levelname}] {importMod}:``` **{message}**", style='{', no_color=True)
   tgh.setFormatter(formatter)
   log.addHandler(tgh)
-  return tgh 
+  return tgh
+
+
+def active_telegram_handler3(bot_name, api_id, api_hash,
+                             token, chat, level=logging.INFO,
+                             fmt="```[{levelname}] {importMod}:``` **{message}**",
+                             style="{", no_color=True):
+  log = logging.getLogger(name_log)
+  tgh = TelegramBotHandlerV3(bot_name, api_id, api_hash, token, chat)
+  tgh.setLevel(level)
+  tgh.addFilter(FilterModule("logger.handlers"))
+  tgh.addFilter(ExtraFilter("tgh"))
+  formatter = MyFormatter(fmt, style=style, no_color=no_color)
+  tgh.setFormatter(formatter)
+  log.addHandler(tgh)
+  return tgh
+
 
 def init(name="", level_console=logging.DEBUG, level_log=logging.DEBUG):
   global name_log

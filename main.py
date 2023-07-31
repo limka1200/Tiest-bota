@@ -62,34 +62,6 @@ store.tglog = asyncio.Queue()
 tgh = logger.active_telegram_handler2(store.tglog)
 
 
-async def process_log(bot: TelegramClient, chat: str, queue_log: asyncio.Queue):
-	chat_type = ""
-	limiter = Sleeper()
-	limiter.add_limit("gen", 30, 1)
-	await limiter.use_limit("gen")
-	entity = await bot.get_entity(chat)
-	from telethon.tl import types
-	if not isinstance(entity, types.User):
-		chat_type = "{}#{}".format(entity.title, entity.id)
-		limiter.add_limit(chat_type, 20, 60)
-	task = None
-	while True:
-		try:
-			log = await queue_log.get()
-			if chat_type:
-				await limiter.use_limits("gen", chat_type)
-			else:
-				await limiter.use_limit("gen")
-
-			if task is not None and not task.done():
-				await task
-			cor = bot.send_message(chat, log)
-			task = asyncio.create_task(cor)
-			#await cor
-		finally:
-			queue_log.task_done()
-
-
 async def main():
 	log.info("start")
 
@@ -97,7 +69,6 @@ async def main():
 		global BOT
 		try:
 			log.info("bot is starting..")
-			# noinspection PyTypeChecker
 			BOT = TelegramClient(BOT_NAME, API_ID, API_HASH, loop=LOOP)
 			await BOT.start(bot_token=BOT_TOKEN)
 			me = await BOT.get_me()
@@ -106,23 +77,12 @@ async def main():
 			log.error(f"bot terminated: {e}\n", exc_info=True)
 
 	#await run_bot()
-	#asyncio.create_task(process_log(BOT, CHAT, store.tglog))
 	log.info("end")
 
 
 @APP.before_serving
 async def startup():
 	await main()
-	def test():
-		import time
-		start_time = time.monotonic()
-		async def test_flood(count = 100):
-			for i in range(0, count):
-				log.info(f"[{time.monotonic()-start_time}] message #{i}")
-		asyncio.gather(test_flood(50), test_flood(50), test_flood(50), test_flood(50))
-		end_time = time.monotonic() - start_time
-		#log.info(f"{100*4} / {}")
-	#test()
 	log.info("server started")
 
 
