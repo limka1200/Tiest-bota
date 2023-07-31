@@ -1,5 +1,5 @@
 import logging
-from .handlers import QueueHandler, TelegramBotHandlerV2, TelegramBotHandlerV3
+from .handlers import QueueHandler, TelegramBotHandlerV3
 from .filters import MyFilter, ExtraFilter, levelFilter, FilterModule
 from .formatters import MyFormatter
 
