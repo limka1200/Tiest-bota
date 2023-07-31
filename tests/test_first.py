@@ -15,9 +15,9 @@ class TestTelegramBotLogger(unittest.TestCase):
 
 		logger.init(level_console=logging.CRITICAL)
 		log = logger.get_logger(__name__)
-		tgh = logger.active_telegram_handler3(BOT_NAME, API_ID,
-															 						API_HASH, BOT_TOKEN, CHAT,
-																					fmt="[{levelname}] {message}")
+		tgh = logger.active_telegram_handler(BOT_NAME, API_ID,
+																				 API_HASH, BOT_TOKEN, CHAT,
+																				 fmt="[{levelname}] {message}")
 		client_mock = asynctest.MagicMock(spec=tgh.client)
 		loop = tgh.loop
 		tgh.client = client_mock

@@ -48,46 +48,10 @@ def active_queue_handler(queue):
   log.addHandler(qh_err)
 
 
-def active_telegram_handler(chat, level=logging.INFO):
-  log = logging.getLogger(name_log)
-  tgh = TelegramBotHandlerV2(chat)
-  tgh.setLevel(level)
-  tgh.addFilter( FilterModule("logger.handlers"))
-  tgh.addFilter(ExtraFilter("tgh"))
-  formatter = MyFormatter( "```[{levelname}] {importMod}:``` **{message}**", style='{', no_color=True)
-  tgh.setFormatter(formatter)
-  log.addHandler(tgh)
-  return tgh
-
-def active_telegram_handler2(queue, level=logging.INFO):
-  """
-  Добавляет активный обработчик сообщений в Telegram для журнала событий.
-
-    :param queue: Очередь, в которую будут отправляться сообщения для Telegram.
-    :type queue: queue.Queue
-
-    :param level: Уровень логирования, по умолчанию установлен на logging.INFO.
-                  Минимальный уровень, при котором сообщения будут обрабатываться обработчиком.
-    :type level: int, optional
-
-    :return: Обработчик очереди, который был добавлен в журнал событий.
-    :rtype: QueueHandler
-  """
-  log = logging.getLogger(name_log)
-  tgh = QueueHandler(queue)
-  tgh.setLevel(level)
-  tgh.addFilter(FilterModule("logger.handlers"))
-  tgh.addFilter(ExtraFilter("tgh"))
-  formatter = MyFormatter("```[{levelname}] {importMod}:``` **{message}**", style='{', no_color=True)
-  tgh.setFormatter(formatter)
-  log.addHandler(tgh)
-  return tgh
-
-
-def active_telegram_handler3(bot_name, api_id, api_hash,
-                             token, chat, level=logging.INFO,
-                             fmt="```[{levelname}] {importMod}:``` **{message}**",
-                             style="{", no_color=True):
+def active_telegram_handler(bot_name, api_id, api_hash,
+                            token, chat, level=logging.INFO,
+                            fmt="```[{levelname}] {importMod}:``` **{message}**",
+                            style="{", no_color=True):
   log = logging.getLogger(name_log)
   tgh = TelegramBotHandlerV3(bot_name, api_id, api_hash, token, chat)
   tgh.setLevel(level)
