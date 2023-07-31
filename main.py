@@ -58,8 +58,7 @@ BOT: TelegramClient = None
 store.log_queue = MyQueue(maxsize=20)
 store.count = 0
 logger.active_queue_handler(store.log_queue)
-store.tglog = asyncio.Queue()
-tgh = logger.active_telegram_handler2(store.tglog)
+
 
 
 async def main():
