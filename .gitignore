@@ -8,5 +8,7 @@
 /replit.nix
 /.breakpoints
 /logs.txt
-/ByLimyrFourth_bot.session
 /pathes/
+**/*.session-journal
+**/*.session
+/tests/test.py
