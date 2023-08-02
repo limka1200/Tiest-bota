@@ -11,4 +11,5 @@
 /pathes/
 **/*.session-journal
 **/*.session
-/tests/test.py
+/tests/Fast test.py
+/tests/.pytest_cache/
