@@ -1,5 +1,5 @@
 import logging
-from .handlers import QueueHandler, TelegramBotHandlerV3
+from .handlers import QueueHandler, TelegramBotHandler
 from .filters import MyFilter, ExtraFilter, levelFilter, FilterModule
 from .formatters import MyFormatter
 
@@ -49,11 +49,12 @@ def active_queue_handler(queue):
 
 
 def active_telegram_handler(bot_name, api_id, api_hash,
-                            token, chat, level=logging.INFO,
+                            token, chat, loop=None, level=logging.INFO,
                             fmt="```[{levelname}] {importMod}:``` **{message}**",
                             style="{", no_color=True):
   log = logging.getLogger(name_log)
-  tgh = TelegramBotHandlerV3(bot_name, api_id, api_hash, token, chat)
+  tgh = TelegramBotHandler(bot_name, api_id, api_hash,
+                           token, chat, loop=loop)
   tgh.setLevel(level)
   tgh.addFilter(FilterModule("logger.handlers"))
   tgh.addFilter(ExtraFilter("tgh"))
