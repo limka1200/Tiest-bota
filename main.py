@@ -7,75 +7,27 @@ import random
 import threading
 import queue
 from telethon import TelegramClient
-from utils import DataStore, ServerSentEvent as SSE, MyQueue
+from utils import DataStore, ServerSentEvent as SSE, MyQueue, generate_cache_buster
 from quart import Quart, render_template, abort, Response, request
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
-import hashlib
-from limits import Sleeper
 
-
-def generate_cache_buster(filename):
-	"""
-    Генерирует хеш-сумму MD5 для содержимого указанного файла.
-
-    :param filename: Имя файла, для которого нужно сгенерировать хеш-сумму.
-
-    :return: Хеш-сумма MD5 в виде строки, представляющей собой 32-символьный шестнадцатеричный код.
-    :rtype: str
-
-    :raises FileNotFoundError: Если указанный файл не найден.
-    :raises IOError: Если возникли проблемы при чтении файла.
-  """
-	with open(filename, "rb") as f:
-		content = f.read()
-		return hashlib.md5(content).hexdigest()
-
-
-# exit("Program stopped by "+__name__)
-console_debug_mode = 0
-if bool(console_debug_mode):
-	lv = logging.DEBUG
-else:
-	lv = logging.INFO
-
-logger.init(level_console=lv)
-logger.active_file_handler()
-
-log = logger.get_logger(__name__)
 
 store = DataStore()
 APP = Quart(__name__)
 BOT_TOKEN = os.environ['Token']
 BOT_NAME = os.environ["BotName"]
 API_HASH = os.environ['ApiHash']
-API_ID: str = os.environ['ApiId']
+API_ID = os.environ['ApiId']
 CHAT = os.environ["Chat"]
 LOOP = asyncio.new_event_loop()
 LOOP.name = "MainLoop"
-asyncio.set_event_loop(LOOP)
-BOT: TelegramClient = None
-store.log_queue = MyQueue(maxsize=20)
+store.log_queue_site = MyQueue(maxsize=20)
 store.count = 0
-logger.active_queue_handler(store.log_queue)
-
 
 
 async def main():
 	log.info("start")
-
-	async def run_bot():
-		global BOT
-		try:
-			log.info("bot is starting..")
-			BOT = TelegramClient(BOT_NAME, API_ID, API_HASH, loop=LOOP)
-			await BOT.start(bot_token=BOT_TOKEN)
-			me = await BOT.get_me()
-			log.info("bot status: " + str(bool(me)))
-		except Exception as e:
-			log.error(f"bot terminated: {e}\n", exc_info=True)
-
-	#await run_bot()
 	log.info("end")
 
 
@@ -92,10 +44,8 @@ async def shutdown():
 
 @APP.route('/')
 async def index():
-	file = os.path.join(APP.static_folder, "js", "console.js")
-	cache_console = generate_cache_buster(file)
-	file = os.path.join(APP.static_folder, "css", "styles.css")
-	cache_styles = generate_cache_buster(file)
+	cache_console = generate_cache_buster("js", "console.js", path_static=APP.static_folder)
+	cache_styles = generate_cache_buster("css", "styles.css", path_static=APP.static_folder)
 	template = await render_template('index.html', cache_console=cache_console, cache_styles=cache_styles)
 	return template
 
@@ -110,7 +60,7 @@ async def sse_log_stream():
 
 	async def log_stream():
 		while True:
-			logs = list(await store.log_queue.get_changed())
+			logs = list(await store.log_queue_site.get_changed())
 			data = "".join(logs)
 			data = data.replace("\n", "<br>")
 			log.debug(data, extra={"qh": False})
@@ -132,6 +82,26 @@ async def start_server():
 
 
 if __name__ == '__main__':
+	asyncio.set_event_loop(LOOP)
+
+	if sys.platform.startswith('win'):
+		logger.init(view_replit=False)
+	else:
+		logger.init()
+	log = logger.get_logger(__name__)
+
+	if sys.gettrace() is not None:
+		log.info("Программа запущена в режиме отладки.")
+	else:
+		logger_main = logging.getLogger(logger.name_log)
+		logger_main.setLevel(logging.INFO)
+		log.info("Программа запущена в обычном режиме.")
+
+	logger.active_file_handler()
+	logger.active_queue_handler(store.log_queue_site)
+	logger.active_telegram_handler(BOT_NAME, API_ID, API_HASH,
+																 BOT_TOKEN, CHAT)
+
 	try:
 		LOOP.run_until_complete(start_server())
 	except:
