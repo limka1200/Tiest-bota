@@ -63,7 +63,7 @@ def active_telegram_handler(bot_name, api_id, api_hash,
   return tgh
 
 
-def init(name="", level_console=logging.DEBUG, level_log=logging.DEBUG):
+def init(name="", level_console=logging.DEBUG, level_log=logging.DEBUG, view_replit=True):
   global name_log
   if not name:
     name = name_log
@@ -73,13 +73,13 @@ def init(name="", level_console=logging.DEBUG, level_log=logging.DEBUG):
   handler = logging.StreamHandler()
   handler.addFilter(MyFilter(name))
   handler.setLevel(level_console)
-  formatter = MyFormatter('%(log_color)s [%(levelname)s] %(importMod)s: \033[1m%(message)s\033[0m',log_colors={
-        'DEBUG': 'white',
-        'INFO': 'blue',
-        'WARNING': 'red',
-        'ERROR': 'red',
-        'CRITICAL': 'red,bold',
-})
+  formatter = MyFormatter('%(log_color)s [%(levelname)s] %(importMod)s: \033[1m%(message)s\033[0m',
+                          log_colors={'DEBUG': 'white',
+                                      'INFO': 'blue',
+                                      'WARNING': 'red',
+                                      'ERROR': 'red',
+                                      'CRITICAL': 'red,bold'},
+                          view_replit=view_replit)
   handler.setFormatter(formatter)
   logger.addHandler(handler)
   logger.setLevel(level_log)

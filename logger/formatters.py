@@ -9,11 +9,12 @@ from colorlog import ColoredFormatter
 
 class MyFormatter(ColoredFormatter):
   def __init__(self, fmt=None, datefmt=None, style='%', no_color=False, log_colors=None,
-               tz=pytz.timezone("Europe/Moscow")):
+               tz=pytz.timezone("Europe/Moscow"), view_replit=True):
     super().__init__(fmt=fmt, datefmt=datefmt, style=style, log_colors=log_colors)
+    self.view_replit = view_replit
     self.noColor = no_color
     self.tz = tz
-    
+
   def converter(self, timestamp):
     dt = datetime.fromtimestamp( timestamp, pytz.utc)
     dt = dt.astimezone(self.tz)
@@ -69,14 +70,15 @@ class MyFormatter(ColoredFormatter):
       record.importMod = record.curretMod+" » "+record.callerMod
     if record.curretFunc != "root":
       record.importMod ="< " +record.importMod+" > "+record.curretFunc+"()"
-    #print("result: "+record.importMod)
     # getting name of Thread
-    th=threading.current_thread()
+    th = threading.current_thread()
     record.thread = th.name
     msg = super().format(record)
     if self.noColor:
       msg = msg[:-4]
-    if record.levelname != "ERROR":
-      msg = textwrap.TextWrapper( width=43).fill(msg)  
-    #print(f"{msg=}")
+    if self.view_replit and record.levelname != "ERROR":
+      wight = 43
+    else:
+      wight = 75
+    msg = textwrap.TextWrapper(width=wight).fill(msg)
     return msg
